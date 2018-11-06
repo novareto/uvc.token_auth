@@ -14,8 +14,9 @@ from uvc.token_auth import create_rsa_pair
 class TokenAuthenticationPlugin(uvcsite.plugins.Plugin):
     grok.name('uvc.token_auth')
 
-    title = u"UVCSite token authentication"
+    title = u"Token authentication"
     description = u"Bearer token authentication capabilities"
+    fa_icon = 'user-lock'
 
     @property
     def status(self):

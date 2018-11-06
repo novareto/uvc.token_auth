@@ -16,7 +16,6 @@ setup(name='uvc.token_auth',
       author_email='',
       url='',
       license='GPL',
-      packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['uvc'],
       include_package_data=True,
       packages=find_packages('src'),
@@ -24,6 +23,7 @@ setup(name='uvc.token_auth',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'pycrypto',
       ],
       entry_points="""
       [z3c.autoinclude.plugin]

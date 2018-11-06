@@ -12,7 +12,6 @@ from zope.interface import implementer
 from zope.pluggableauth import interfaces
 from zope.pluggableauth.factories import PrincipalInfo
 from zope.publisher.interfaces.http import IHTTPRequest
-from zope.cachedescriptors.property import CachedProperty
 
 
 @implementer(interfaces.ICredentialsPlugin)
@@ -50,7 +49,7 @@ class TokenAuthenticator(grok.LocalUtility):
     _public_key = None
     TTL = dict(days=10, hours=0, minutes=0)
     
-    @CachedProperty
+    @property
     def private_key(self):
         return RSA.importKey(self._private_key)
 
@@ -58,7 +57,7 @@ class TokenAuthenticator(grok.LocalUtility):
     def private_key(self, value):
         self._private_key = value
 
-    @CachedProperty
+    @property
     def public_key(self):
         return RSA.importKey(self._public_key)
 

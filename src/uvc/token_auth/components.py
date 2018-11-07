@@ -65,14 +65,14 @@ class TokenAuthenticator(grok.LocalUtility):
     def public_key(self, value):
         self._public_key = value
 
-    def make_token(self):
+    def make_token(self, **data):
         ts = int(time.mktime((
             datetime.now() + timedelta(**self.TTL)).timetuple()
         ))
-        token = json.dumps({
-            'timestamp': ts,
-            'id': 'servicetelefon',
-        })
+        # We override the reserved keys 'timestamp' and 'id'.
+        data['timestamp'] = ts
+        data['id'] = 'uvcsite.jwt'
+        token = json.dumps(data)
         encrypted = self.public_key.encrypt(token, 32)
         access_token = urllib.quote_plus(base64.b64encode(encrypted[0]))
         return access_token

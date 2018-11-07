@@ -12,11 +12,21 @@ from uvc.token_auth import create_rsa_pair
 
 
 class TokenAuthenticationPlugin(uvcsite.plugins.Plugin):
-    grok.name('uvc.token_auth')
+    grok.name('jwt.auth')
 
     title = u"Token authentication"
     description = u"Bearer token authentication capabilities"
     fa_icon = 'user-lock'
+
+    @staticmethod
+    def generate_token(site=None, **args):
+        if site is None:
+            site = grok.getApplication()
+        sm = site.getSiteManager()
+        auth_name = grok.name.bind().get(TokenAuthenticator)
+        plugin = sm[auth_name]
+        token = plugin.make_token(**args)
+        return token
 
     @property
     def status(self):
@@ -114,14 +124,11 @@ class TokenAuthenticationPlugin(uvcsite.plugins.Plugin):
             },
             type=uvcsite.plugins.STRUCTURE,
             redirect=False)
-
+    
     @uvcsite.plugins.plugin_action(
         'Test token generation', _for=uvcsite.plugins.INSTALLED)
-    def test_token(site):
-        sm = site.getSiteManager()
-        auth_name = grok.name.bind().get(TokenAuthenticator)
-        plugin = sm[auth_name]
-        token = plugin.make_token()        
+    def test_token(site, **args):
+        token = TokenAuthenticationPlugin.generate_token(test='test')    
         return uvcsite.plugins.PluginResult(
             value={
                 'url encoded token': token

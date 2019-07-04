@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-
 import base64
 import grok
 import json
 import time
-import urllib
+import urllib.parse
 
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
 from datetime import datetime, timedelta
 from zope.interface import implementer
 from zope.pluggableauth import interfaces
@@ -73,8 +72,9 @@ class TokenAuthenticator(grok.LocalUtility):
         data['timestamp'] = ts
         data['id'] = 'uvcsite.jwt'
         token = json.dumps(data)
-        encrypted = self.public_key.encrypt(token, 32)
-        access_token = urllib.quote_plus(base64.b64encode(encrypted[0]))
+        cipher_rsa = PKCS1_OAEP.new(self.public_key)
+        encrypted = cipher_rsa.encrypt(token.encode('utf-8'))
+        access_token = urllib.parse.quote(base64.b64encode(encrypted))
         return access_token
 
     def authenticateCredentials(self, credentials):
@@ -85,12 +85,13 @@ class TokenAuthenticator(grok.LocalUtility):
             return
         try:
             token = base64.b64decode(access_token)
-            decrypted = self.private_key.decrypt((token,))
+            cipher_rsa = PKCS1_OAEP.new(self.private_key)
+            decrypted = cipher_rsa.decrypt(token)
             data = json.loads(decrypted)
         except TypeError:
             return None
         except Exception as exc:
-            print exc  # log this nasty error
+            # log this nasty error
             return None
 
         now = int(time.time())

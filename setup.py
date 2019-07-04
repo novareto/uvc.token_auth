@@ -23,7 +23,7 @@ setup(name='uvc.token_auth',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          'pycrypto',
+          'pycryptodome >= 3.8',
       ],
       entry_points="""
       [z3c.autoinclude.plugin]

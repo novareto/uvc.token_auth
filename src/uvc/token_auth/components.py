@@ -2,7 +2,11 @@ import base64
 import grok
 import json
 import time
-import urllib.parse
+
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
@@ -47,7 +51,7 @@ class TokenAuthenticator(grok.LocalUtility):
     _private_key = None
     _public_key = None
     TTL = dict(days=10, hours=0, minutes=0)
-    
+
     @property
     def private_key(self):
         return RSA.importKey(self._private_key)
@@ -74,7 +78,7 @@ class TokenAuthenticator(grok.LocalUtility):
         token = json.dumps(data)
         cipher_rsa = PKCS1_OAEP.new(self.public_key)
         encrypted = cipher_rsa.encrypt(token.encode('utf-8'))
-        access_token = urllib.parse.quote(base64.b64encode(encrypted))
+        access_token = quote(base64.b64encode(encrypted))
         return access_token
 
     def authenticateCredentials(self, credentials):
@@ -108,6 +112,6 @@ class TokenAuthenticator(grok.LocalUtility):
         return PrincipalInfo(**authenticated)
 
     def principalInfo(self, id):
-        """we don´t need this method"""
+        """we don't need this method"""
         if id.startswith('uvc.'):
             return PrincipalInfo(id, id, id, id)
